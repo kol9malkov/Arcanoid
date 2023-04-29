@@ -12,4 +12,5 @@
   <li>Save all files to 1 directory</li>
 </ul>
 <br>
+<h3>Step 3</h3>
 <h2>Launch arcanoid.py and enjoy the game</h2>
