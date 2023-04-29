@@ -27,6 +27,10 @@ class Area():
     def collidepoint(self, x, y):
         return self.rect.collidepoint(x, y)
 
+    def colliderect(self, rect):
+        return self.rect.colliderect(rect)
+
+
 """ Класс картинки """
 class Picture(Area):
     def __init__(self, filename, x=0, y=0, width=10, height=10):
@@ -38,7 +42,7 @@ class Picture(Area):
 
 """ Создание спрайтов """
 ball = Picture("ball.png", 160, 200, 50, 50)
-platform = Picture("platform.png", 200, 330, 100, 30)
+platform = Picture("platform.png", 200, 350, 100, 30)
 
 start_x = 5 #координаты первого монстра по x
 start_y = 5 #координаты первого монстра по y
@@ -56,21 +60,51 @@ for j in range(3):
 
 """ Игровой цикл """
 game_over = True # флаг окончания игры
+move_right = False # флаг движения вправо
+move_left = False # флаг движения влево
+speed_x = 3 # направления перемещения мяча по x
+speed_y = 3 # направления перемещения мяча по y
 while game_over:
+    ball.fill() # отображаем прямоугольник вокруг мяча
+    platform.fill() # отображаем прямоугольник вокруг платформы
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a: # нажата клавиша 'a' (K_LEFT - нажата стрелка влево)
+                move_left = True
+            if event.key == pygame.K_d: # нажата клавиша 'd' (K_RIGHT - нажата стрелка вправо)
+                move_right = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_a: # не нажата клавиша 'a' (K_LEFT - нажата стрелка влево)
+                move_left = False
+            if event.key == pygame.K_d: # не нажата клавиша 'd' (K_RIGHT - нажата стрелка вправо)
+                move_right = False
+        
+
+    if move_right and platform.rect.x < 400:
+        platform.rect.x += 3
+    if move_left and platform.rect.x > 0:
+        platform.rect.x -= 3
+        
+    ball.rect.x += speed_x
+    ball.rect.y += speed_y
+
+    """ отскоки мяча"""
+    if ball.colliderect(platform.rect):
+        speed_y *= -1
+    if ball.rect.y < 0:
+        speed_y *= -1
+    if ball.rect.x > 400 or ball.rect.x < 0:
+        speed_x *= -1
+
     
     for m in monsters: # отрисовываем монстров
         m.draw()
 
-    ball.fill() # отображаем прямоугольник вокруг мяча
-    platform.fill() # отображаем прямоугольник вокруг платформы
     ball.draw() # отрисовываем мяч
     platform.draw() # отрисовываем платформу
 
-    clock.tick(40)
     pygame.display.update()
-
-
-
+    clock.tick(40)
