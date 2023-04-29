@@ -40,6 +40,15 @@ class Picture(Area):
     def draw(self):
         mw.blit(self.image, (self.rect.x, self.rect.y))
 
+""" Класс надписи """
+class Label(Area):
+    def set_text(self, text, fsize=12, text_color=(0, 0, 0)):
+        self.image = pygame.font.SysFont('verdana', fsize).render(text, True, text_color)
+    
+    def draw(self, shift_x=0, shift_y=0):
+        self.fill()
+        mw.blit(self.image, (self.rect.x + shift_x, self.rect.y + shift_y))
+
 """ Создание спрайтов """
 ball = Picture("ball.png", 160, 200, 50, 50)
 platform = Picture("platform.png", 200, 350, 100, 30)
@@ -87,7 +96,8 @@ while game_over:
         platform.rect.x += 3
     if move_left and platform.rect.x > 0:
         platform.rect.x -= 3
-        
+
+    """ автоматическое движение мяча """
     ball.rect.x += speed_x
     ball.rect.y += speed_y
 
@@ -96,12 +106,29 @@ while game_over:
         speed_y *= -1
     if ball.rect.y < 0:
         speed_y *= -1
-    if ball.rect.x > 400 or ball.rect.x < 0:
+    if ball.rect.x > 450 or ball.rect.x < 0:
         speed_x *= -1
+
+    """ Поражение """
+    if ball.rect.y > (platform.rect.y):
+        time_text = Label(150, 150, 50, 50, BACKGROUND)
+        time_text.set_text("YOU LOSE", 60, (255, 0, 0))
+        time_text.draw(10, 10)
+        game_over = False
+    """ Победа """
+    if len(monsters) == 0:
+        time_text = Label(150, 150, 50, 50, BACKGROUND)
+        time_text.set_text("YOU WIN", 60, (0, 200, 0))
+        time_text.draw(10, 10)
+        game_over = False
 
     
     for m in monsters: # отрисовываем монстров
         m.draw()
+        if m.colliderect(ball.rect):
+            monsters.remove(m)
+            m.fill()
+            speed_y *= -1
 
     ball.draw() # отрисовываем мяч
     platform.draw() # отрисовываем платформу
